@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.taskmanager.databinding.ActivityMainBinding
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import java.util.*
 
@@ -105,23 +107,29 @@ class MainActivity : AppCompatActivity(), TaskAdapter.OnItemClickListener {
         val notificationUtils = NotificationUtils()
 
         builder.setPositiveButton("Save", DialogInterface.OnClickListener { dialog, which ->
-            val text = taskNamelayout.text.toString()
-            val cat = categoryNamelayout.text.toString()
+            val text = taskNamelayout.text.toString().trim()
+            val cat = categoryNamelayout.text.toString().trim()
 
-            if(text.equals("") || cat.equals(""))
-                dialog.dismiss()
-
-            val task = Task(text = text, category = cat)
-            if(checkBox.isChecked == true)
+            if(text.isEmpty() || cat.isEmpty())
             {
-                task.isAlarmSet = true
-                val time : Long = getTime(timePicker, datePicker)
-                notificationUtils.scheduleNotification(task, this, time)
+                Toast.makeText(this, "Strings are empty", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
+            }
+            else {
+
+                val task = Task(text = text, category = cat)
+                if (checkBox.isChecked == true) {
+                    task.isAlarmSet = true
+                    val time: Long = getTime(timePicker, datePicker)
+                    notificationUtils.scheduleNotification(task, this@MainActivity, time)
+                }
+
+                viewModel.insert(task)
             }
 
-            viewModel.insert(task)
-
         })
+
+        builder.setCancelable(false)
 
         builder.setNeutralButton("Discard", DialogInterface.OnClickListener{ dialog, which ->
             dialog.dismiss()
@@ -160,27 +168,35 @@ class MainActivity : AppCompatActivity(), TaskAdapter.OnItemClickListener {
         categoryNamelayout.setText(task.category)
 
         builder.setPositiveButton("Save", DialogInterface.OnClickListener { dialog, which ->
-            val text = taskNamelayout.text.toString()
-            val cat = categoryNamelayout.text.toString()
+            val text = taskNamelayout.text.toString().trim()
+            val cat = categoryNamelayout.text.toString().trim()
 
-            if(text.equals("") || cat.equals(""))
+            if(text.isEmpty() || cat.isEmpty())
+            {
+                Toast.makeText(this, "Strings are empty", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
-
-            if(checkBox.isChecked == true) {
-                task.isAlarmSet = true
-                val time: Long = getTime(timePicker, datePicker)
-                notificationUtils.scheduleNotification(task, this, time)
             }
 
-            task.text = taskNamelayout.text.toString()
-            task.category = categoryNamelayout.text.toString()
-            viewModel.update(task)
+            else {
+
+                if (checkBox.isChecked == true) {
+                    task.isAlarmSet = true
+                    val time: Long = getTime(timePicker, datePicker)
+                    notificationUtils.scheduleNotification(task, this@MainActivity, time)
+                }
+
+                task.text = taskNamelayout.text.toString()
+                task.category = categoryNamelayout.text.toString()
+                viewModel.update(task)
+            }
 
         })
 
         builder.setNeutralButton("Discard", DialogInterface.OnClickListener{ dialog, which ->
             dialog.dismiss()
         })
+
+        builder.setCancelable(false)
 
         val alertDialog = builder.create()
         alertDialog.show()
@@ -219,7 +235,10 @@ class MainActivity : AppCompatActivity(), TaskAdapter.OnItemClickListener {
                         viewModel.delete(task)
 
                         Toast.makeText(this@MainActivity, "Item deleted", Toast.LENGTH_SHORT).show()
-
+                        Snackbar.make(binding.root, "My message", Snackbar.LENGTH_SHORT)
+                            .setAction("Undo", View.OnClickListener {
+                                viewModel.insert(task)
+                            }).show()
                     }
 
                 }

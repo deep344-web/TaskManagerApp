@@ -16,7 +16,7 @@ class NotificationBroadCast() : BroadcastReceiver() {
             Intent(context, MainActivity::class.java), 0)
 
         val notification = NotificationCompat.Builder(context, "taskmanagerchannel")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentIntent(contentIntent)
                 .setAutoCancel(true)
                 .setContentTitle(intent.getStringExtra("notificationTitle"))

@@ -10,7 +10,7 @@ class Task (
     @ColumnInfo(name= "task_name")
     var text : String,
     @ColumnInfo(name = "task_category")
-    var category : String,
+    var category : String = "Default",
 
     var isAlarmSet : Boolean = false,
 ){
