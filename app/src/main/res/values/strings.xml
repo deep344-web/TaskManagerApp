@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Task Manager</string>
+    <string name="work_Category">Work</string>
+    <string name="family_Category">Family</string>
+    <string name="personal_Category">Personal</string>
+
+
+</resources>
